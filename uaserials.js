@@ -9,6 +9,7 @@
     var TITLE      = 'UASerials';
 
     function proxyUrl(url) {
+        return 'https://cors.nb557.workers.dev/' + url;
         if (Lampa.Storage.field(PLUGIN_TAG + '_proxy') === true)
             return 'https://cors.nb557.workers.dev/' + url;
         return url;
