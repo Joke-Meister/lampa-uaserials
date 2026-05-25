@@ -1,5 +1,5 @@
 // UASerials.com — standalone плагін для Lampa
-// Версія: 2.2.1
+// Версія: 2.2.2
 
 (function () {
     'use strict';
@@ -34,7 +34,23 @@
         }, false, { dataType: 'text' });
         return net;
     }
-
+    
+    function httpPost(url, data, onOk, onErr) {
+        var net = new Lampa.Reguest();
+        net.timeout(15000);
+        
+        net.native(proxyUrl(url), function (html) {
+            onOk(html || '');
+        }, function (a, c) {
+            if (onErr) onErr(net.errorDecode ? net.errorDecode(a, c) : 'error');
+        }, true, { 
+            dataType: 'text',
+            postData: data   // <-- главное отличие
+        });
+        
+        return net;
+    }
+    
     // --------------------------------------------------
     // Парсинг
     // --------------------------------------------------
