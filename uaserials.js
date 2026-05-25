@@ -38,16 +38,23 @@
     function httpPost(url, data, onOk, onErr) {
         var net = new Lampa.Reguest();
         net.timeout(15000);
-        
+    
+        console.log('POST request to:', url); // для отладки
+    
         net.native(proxyUrl(url), function (html) {
+            console.log('POST success, length:', html ? html.length : 0);
             onOk(html || '');
         }, function (a, c) {
+            console.error('POST error:', a, c);
             if (onErr) onErr(net.errorDecode ? net.errorDecode(a, c) : 'error');
-        }, true, { 
+        }, true, {
             dataType: 'text',
-            postData: data   // <-- главное отличие
+            postData: data,
+            headers: {
+                'Content-Type': data instanceof FormData ? undefined : 'application/x-www-form-urlencoded'
+            }
         });
-        
+    
         return net;
     }
     
