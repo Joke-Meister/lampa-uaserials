@@ -357,13 +357,14 @@
 
             // Визначаємо чи це вікно "Источник" — шукаємо пункти Shots або Трейлеры
             var isSource = params.items.some(function (i) {
-                return i.title === 'Shots' || i.title === 'Трейлеры' || i.title === 'Трейлери';
+                var t = (i.title || '').replace(/\s+/g, '');
+                return t === 'Shots' || t === 'Трейлеры' || t === 'Трейлери';
             });
 
             if (!isSource) return _show(params);
 
             // Вже додано?
-            if (params.items.some(function (i) { return i.id === PLUGIN_TAG; })) {
+            if (params.items.some(function (i) { return i.id === PLUGIN_TAG || (i.title || '').replace(/\s+/g,'') === TITLE; })) {
                 return _show(params);
             }
 
