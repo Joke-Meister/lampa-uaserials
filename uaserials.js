@@ -40,20 +40,30 @@
         var net = new Lampa.Reguest();
         net.timeout(15000);
     
-        console.log('POST request to:', url); // для отладки
+        // Лучшие рабочие прокси для Lampa на текущий момент
+        const proxies = [
+            'https://cors.lampa.mx/',           // основной
+            'https://cf.lampa.mx/',             // Cloudflare
+            'https://bylampa.online/',          // запасной
+            'https://proxy.lampa.app/'          // ещё один
+        ];
     
-        net.native(proxyUrl(url), function (html) {
-            console.log('POST success, length:', html ? html.length : 0);
+        // Берем первый рабочий (или можно сделать выбор)
+        const proxyBase = proxies[0]; 
+        
+        const fullUrl = proxyBase + url.replace(/^https?:\/\//, '');
+    
+        console.log('→ POST via proxy:', fullUrl);
+    
+        net.native(fullUrl, function (html) {
+            console.log('POST OK, size:', html ? html.length : 0);
             onOk(html || '');
         }, function (a, c) {
-            console.error('POST error:', a, c);
+            console.error('POST Error:', a, c);
             if (onErr) onErr(net.errorDecode ? net.errorDecode(a, c) : 'error');
         }, true, {
             dataType: 'text',
-            postData: data,
-            headers: {
-                'Content-Type': data instanceof FormData ? undefined : 'application/x-www-form-urlencoded'
-            }
+            postData: data
         });
     
         return net;
