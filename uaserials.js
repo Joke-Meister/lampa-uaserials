@@ -1,5 +1,5 @@
 // UASerials.com — standalone плагін для Lampa
-// Версія: 2.2.0
+// Версія: 2.2.1
 
 (function () {
     'use strict';
@@ -225,10 +225,20 @@
         }
 
         function doSearch(query, onFound, onEmpty) {
-            httpGet(SITE + '/?do=search&subaction=search&story=' + encodeURIComponent(query), function (html) {
+            const url = SITE + '/';  // чистый URL без параметров
+        
+            const formData = new FormData();
+            formData.append('do', 'search');
+            formData.append('subaction', 'search');
+            formData.append('story', query);
+        
+            httpPost(url, formData, function (html) {
                 var r = parseSearchResults(html);
-                if (r.length) onFound(r); else onEmpty();
-            }, function () { onEmpty(); });
+                if (r.length) onFound(r);
+                else onEmpty();
+            }, function () {
+                onEmpty();
+            });
         }
 
         function startSearch() {
