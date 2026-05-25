@@ -42,10 +42,9 @@
     
         // Лучшие рабочие прокси для Lampa на текущий момент
         const proxies = [
-            // 'https://cors.lampa.mx/',           // основной
-            'https://cf.lampa.mx/',             // Cloudflare
-            'https://bylampa.online/',          // запасной
-            'https://proxy.lampa.app/'          // ещё один
+            'https://bylampa.online/',     // хороший вариант
+            'https://proxy.lampa.app/',    // запасной
+            'https://cf.lampa.mx/'         // последний (не очень для POST)
         ];
     
         // Берем первый рабочий (или можно сделать выбор)
