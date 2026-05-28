@@ -9,6 +9,9 @@
     var TITLE = 'UASerials';
     var PROXY = 'https://cors.nb557.workers.dev/';
 
+    // Зберігаємо поточний movie коли відкривається сторінка фільму
+    var currentMovie = {};
+
     // ════════════════════════════════════════
     // Утиліти
     // ════════════════════════════════════════
@@ -302,11 +305,9 @@
                 return (i.title || '').replace(/\s+/g, '') === TITLE;
             })) return _show(params);
 
-            // Захоплюємо movie ЗАРАЗ, поки Select ще відкривається
-            // (після кліку Lampa вже змінить активний екран)
-            var act   = Lampa.Activity.active();
-            var movie = (act && act.movie) ? act.movie : {};
-            console.log('[UASerials] movie:', movie.title || '(empty)', movie);
+            // Використовуємо movie збережений при відкритті сторінки фільму
+            var movie = currentMovie;
+            console.log('[UASerials] movie:', movie.title || '(empty)');
 
             // Наш пункт
             var newItems = [{ title: TITLE, subtitle: 'Серіали та фільми українською' }]
@@ -344,7 +345,16 @@
     function init() {
         Lampa.Component.add(TAG, UaComponent);
         patchSelect();
-        console.log('[' + TITLE + '] v3.0 ✓');
+
+        // Зберігаємо movie при кожному відкритті сторінки фільму
+        Lampa.Listener.follow('full', function (e) {
+            if (e.type === 'complite' && e.object && e.object.movie) {
+                currentMovie = e.object.movie;
+                console.log('[UASerials] saved movie:', currentMovie.title);
+            }
+        });
+
+        console.log('[' + TITLE + '] v3.1 ✓');
     }
 
     if (window.appready) init();
