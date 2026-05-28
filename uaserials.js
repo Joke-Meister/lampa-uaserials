@@ -7,7 +7,7 @@
     var SITE  = 'https://uaserials.com';
     var TAG   = 'uaserials';
     var TITLE = 'UASerials';
-    var PROXY = 'https://cors.nb557.workers.dev/';
+    var PROXY = 'https://corsproxy.io/?';
 
     // Зберігаємо поточний movie коли відкривається сторінка фільму
     var currentMovie = {};
