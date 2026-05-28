@@ -7,7 +7,7 @@
     var SITE  = 'https://uaserials.com';
     var TAG   = 'uaserials';
     var TITLE = 'UASerials';
-    var PROXY = 'https://proxy.killcors.com/?url=';
+    var PROXY = 'https://api.allorigins.win/raw?url=';
 
     // Зберігаємо поточний movie коли відкривається сторінка фільму
     var currentMovie = {};
