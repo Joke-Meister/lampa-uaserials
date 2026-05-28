@@ -167,7 +167,7 @@
     // ════════════════════════════════════════
 
     function UaComponent(object) {
-        var movie  = object.movie || {};
+        var movie  = object.movie || object.card || {};
         var active = false;
         var wrap   = $('<div style="padding:1em"></div>');
 
@@ -349,8 +349,10 @@
         // Lampa завжди викликає push коли відкриває сторінку фільму
         var _push = Lampa.Activity.push.bind(Lampa.Activity);
         Lampa.Activity.push = function (object) {
-            if (object && object.movie && object.movie.id) {
-                currentMovie = object.movie;
+            // Lampa зберігає фільм в object.card, не object.movie
+            var m = object.card || object.movie;
+            if (m && m.id) {
+                currentMovie = m;
                 console.log('[UASerials] saved movie:', currentMovie.title);
             }
             return _push(object);
