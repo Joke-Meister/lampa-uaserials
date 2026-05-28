@@ -302,6 +302,12 @@
                 return (i.title || '').replace(/\s+/g, '') === TITLE;
             })) return _show(params);
 
+            // Захоплюємо movie ЗАРАЗ, поки Select ще відкривається
+            // (після кліку Lampa вже змінить активний екран)
+            var act   = Lampa.Activity.active();
+            var movie = (act && act.movie) ? act.movie : {};
+            console.log('[UASerials] movie:', movie.title || '(empty)', movie);
+
             // Наш пункт
             var newItems = [{ title: TITLE, subtitle: 'Серіали та фільми українською' }]
                 .concat(params.items);
@@ -311,8 +317,6 @@
                 items: newItems,
                 onSelect: function (item) {
                     if ((item.title || '').replace(/\s+/g, '') === TITLE) {
-                        var act   = Lampa.Activity.active();
-                        var movie = (act && act.movie) ? act.movie : {};
                         setTimeout(function () {
                             Lampa.Activity.push({
                                 url      : '',
