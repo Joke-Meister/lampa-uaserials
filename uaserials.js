@@ -40,6 +40,21 @@
         return net;
     }
 
+    function post(url, body, ok, fail) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', px(url), true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.timeout = 20000;
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 400) ok(xhr.responseText || '');
+            else { console.warn('[UASerials] POST status:', xhr.status); if (fail) fail(); }
+        };
+        xhr.onerror   = function () { console.warn('[UASerials] POST onerror'); if (fail) fail(); };
+        xhr.ontimeout = function () { console.warn('[UASerials] POST timeout'); if (fail) fail(); };
+        xhr.send(body);
+        return xhr;
+    }
+
     // ════════════════════════════════════════
     // Парсинг HTML
     // ════════════════════════════════════════
@@ -239,8 +254,8 @@
                 if (i >= queries.length) { empty('Не знайдено: ' + (movie.title || '')); return; }
                 var q = queries[i++];
 
-                get(SITE + '/?do=search&subaction=search&story=' + encodeURIComponent(q),
-                    function (html) {
+                var body = 'do=search&subaction=search&story=' + encodeURIComponent(q);
+                post(SITE + '/', body, function (html) {
                         var r = parseSearch(html);
                         var b = best(r, movie);
                         if (!b) { next(); return; }
