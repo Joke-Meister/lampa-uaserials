@@ -344,17 +344,20 @@
 
     function init() {
         Lampa.Component.add(TAG, UaComponent);
-        patchSelect();
 
-        // Зберігаємо movie при кожному відкритті сторінки фільму
-        Lampa.Listener.follow('full', function (e) {
-            if (e.type === 'complite' && e.object && e.object.movie) {
-                currentMovie = e.object.movie;
+        // Перехоплюємо Activity.push — найнадійніший спосіб зловити movie
+        // Lampa завжди викликає push коли відкриває сторінку фільму
+        var _push = Lampa.Activity.push.bind(Lampa.Activity);
+        Lampa.Activity.push = function (object) {
+            if (object && object.movie && object.movie.id) {
+                currentMovie = object.movie;
                 console.log('[UASerials] saved movie:', currentMovie.title);
             }
-        });
+            return _push(object);
+        };
 
-        console.log('[' + TITLE + '] v3.1 ✓');
+        patchSelect();
+        console.log('[' + TITLE + '] v3.2 ✓');
     }
 
     if (window.appready) init();
