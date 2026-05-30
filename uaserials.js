@@ -234,21 +234,8 @@
         // --- Пошук ---
 
         function search() {
-            // Будуємо список запитів — спочатку латиниця, потім решта
-            function isLatin(s) { return /^[a-zA-Z0-9\s\-\.,:!?'&]+$/.test(s); }
-            var allQueries = [movie.original_title, movie.original_name, movie.name, movie.title, object.search]
+            var queries = [movie.name, movie.title, movie.original_title, movie.original_name, object.search]
                 .filter(function (q, i, a) { return q && a.indexOf(q) === i; });
-            var latin  = allQueries.filter(isLatin);
-            var other  = allQueries.filter(function(q) { return !isLatin(q); });
-            // Латиниця першою, нелатинські як запасні
-            var queries = latin.concat(other);
-            console.log('[UASerials] movie fields:',{
-                title         : movie.title,
-                original_title: movie.original_title,
-                original_name : movie.original_name,
-                name          : movie.name,
-                search        : object.search
-            });
             console.log('[UASerials] queries:', queries);
 
             var i = 0;
