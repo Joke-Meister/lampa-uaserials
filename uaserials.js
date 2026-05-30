@@ -234,8 +234,35 @@
         // --- Пошук ---
 
         function search() {
-            var queries = [movie.name, movie.title, movie.original_title, movie.original_name, object.search]
+            function isLatin(s) {
+                return /^[a-zA-Z0-9\s\-\.,:!?'&]+$/.test(s);
+            }
+
+            function translit(s) {
+                var map = {
+                    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo',
+                    'ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m',
+                    'н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
+                    'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'sch',
+                    'ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya',
+                    'і':'i','ї':'yi','є':'ye','ґ':'g'
+                };
+                return (s || '').toLowerCase().split('').map(function(c) {
+                    return map[c] !== undefined ? map[c] : c;
+                }).join('').replace(/\s+/g,' ').trim();
+            }
+
+            var all = [movie.name, movie.title, movie.original_title, movie.original_name, object.search]
                 .filter(function (q, i, a) { return q && a.indexOf(q) === i; });
+
+            // Спочатку латинські, потім транслітеровані кириличні
+            var latin = all.filter(isLatin);
+            var cyrTranslit = all
+                .filter(function(q) { return !isLatin(q) && /[а-яёіїєґА-ЯЁІЇЄҐ]/.test(q); })
+                .map(translit)
+                .filter(function(q, i, a) { return q && a.indexOf(q) === i && latin.indexOf(q) === -1; });
+
+            var queries = latin.concat(cyrTranslit);
             console.log('[UASerials] queries:', queries);
 
             var i = 0;
