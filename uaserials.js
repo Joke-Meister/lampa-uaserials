@@ -240,9 +240,8 @@
                 .filter(function (q, i, a) {
                     if (!q) return false;
                     if (a.indexOf(q) !== i) return false; // дублікат
-                    // Пропускаємо рядки де > 30% символів — кирилиця
-                    var cyr = (q.match(/[а-яёіїєґА-ЯЁІЇЄҐ]/g) || []).length;
-                    return cyr / q.length < 0.3;
+                    // Проксі підтримує тільки латиницю — пропускаємо все інше
+                    return /^[a-zA-Z0-9\s\-\.,:!?']+$/.test(q);
                 });
 
             var i = 0;
@@ -251,7 +250,7 @@
                 if (i >= queries.length) { empty('Не знайдено: ' + (movie.title || '')); return; }
                 var q = queries[i++];
 
-                get(SITE + '/?do=search&subaction=search&story=' + encodeURIComponent(q), function (html) {
+                get(SITE + '/?do=search&subaction=search&story=' + q, function (html) {
                         var r = parseSearch(html);
                         var b = best(r, movie);
                         if (!b) { next(); return; }
