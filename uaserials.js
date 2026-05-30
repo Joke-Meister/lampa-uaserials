@@ -252,7 +252,13 @@
 
         // ── Пошук ──
         function buildQueries() {
+            function trimColon(s) {
+                // Обрізаємо все після двокрапки: "Transformers: Rise of the Beasts" → "Transformers"
+                var i = (s || '').indexOf(':');
+                return i !== -1 ? s.slice(0, i).trim() : s;
+            }
             var all = [movie.name, movie.title, movie.original_title, movie.original_name, object.search]
+                .map(trimColon)
                 .filter(function (q, i, a) { return q && a.indexOf(q) === i; });
             var latin = all.filter(isLatin);
             var cyr   = all.filter(function(q){ return !isLatin(q) && /[а-яёіїєґА-ЯЁІЇЄҐ]/.test(q); }).map(translit);
