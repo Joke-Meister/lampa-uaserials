@@ -17,7 +17,7 @@
     // ════════════════════════════════════════
 
     function px(url) {
-        return PROXY + url;
+        return PROXY + encodeURIComponent(url);
     }
 
     function clean(s) {
