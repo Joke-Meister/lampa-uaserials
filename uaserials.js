@@ -43,20 +43,6 @@
         return net;
     }
 
-    function post(url, body, ok, fail) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', px(url), true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.timeout = 20000;
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 400) ok(xhr.responseText || '');
-            else { console.warn('[UASerials] POST status:', xhr.status); if (fail) fail(); }
-        };
-        xhr.onerror   = function () { console.warn('[UASerials] POST onerror'); if (fail) fail(); };
-        xhr.ontimeout = function () { console.warn('[UASerials] POST timeout'); if (fail) fail(); };
-        xhr.send(body);
-        return xhr;
-    }
 
     // ════════════════════════════════════════
     // Парсинг HTML
@@ -248,8 +234,16 @@
         // --- Пошук ---
 
         function search() {
-            var queries = [movie.original_title, movie.original_name, movie.title, movie.name, object.search]
-                .filter(function (q, i, a) { return q && a.indexOf(q) === i; });
+            // Проксі api.codetabs.com не підтримує кирилицю —
+            // шукаємо тільки по латинських назвах (original_title, original_name)
+            var queries = [movie.original_title, movie.original_name, movie.name, movie.title, object.search]
+                .filter(function (q, i, a) {
+                    if (!q) return false;
+                    if (a.indexOf(q) !== i) return false; // дублікат
+                    // Пропускаємо рядки де > 30% символів — кирилиця
+                    var cyr = (q.match(/[а-яёіїєґА-ЯЁІЇЄҐ]/g) || []).length;
+                    return cyr / q.length < 0.3;
+                });
 
             var i = 0;
             function next() {
@@ -257,8 +251,7 @@
                 if (i >= queries.length) { empty('Не знайдено: ' + (movie.title || '')); return; }
                 var q = queries[i++];
 
-                var body = 'do=search&subaction=search&story=' + encodeURIComponent(q);
-                post(SITE + '/', body, function (html) {
+                get(SITE + '/?do=search&subaction=search&story=' + encodeURIComponent(q), function (html) {
                         var r = parseSearch(html);
                         var b = best(r, movie);
                         if (!b) { next(); return; }
