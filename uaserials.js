@@ -48,18 +48,36 @@
     // Парсинг HTML
     // ════════════════════════════════════════
 
-    // Результати пошуку → [{id, title, url, year}]
+    // Результати пошуку → [{id, title, orig, url, year}]
     function parseSearch(html) {
-        var out = {}, re = /href=["'](https?:\/\/uaserials\.com\/(\d+)-[^"'#?]+\.html)["'][^>]*>\s*([^<]{2,80})/gi, m;
-        while ((m = re.exec(html)) !== null) {
-            var id = m[2];
-            if (out[id]) continue;
-            var t = clean(m[3]);
-            if (t.length < 2) continue;
-            var yr = html.substring(m.index, m.index + 300).match(/\b(19|20)\d{2}\b/);
-            out[id] = { id: id, title: t, url: m[1], year: yr ? yr[0] : '' };
+        var results = [], seen = {};
+        // Парсимо кожен <a class="uas-card"> блок
+        var cardRe = /<a[^>]+class="[^"]*uas-card[^"]*"[^>]+href="([^"]+)"[^>]+data-uas-id="(\d+)"[^>]*>([\s\S]*?)<\/a>/gi;
+        var m;
+        while ((m = cardRe.exec(html)) !== null) {
+            var url = m[1], id = m[2], inner = m[3];
+            if (seen[id]) continue;
+            seen[id] = true;
+
+            // Абсолютний URL
+            if (url.indexOf('/') === 0) url = 'https://uaserials.com' + url;
+
+            // Назва українська
+            var tm = inner.match(/<span[^>]*uas-card__title[^>]*>([^<]+)<\/span>/i);
+            var title = tm ? clean(tm[1]) : '';
+
+            // Оригінальна назва
+            var om = inner.match(/<span[^>]*uas-card__orig[^>]*>([\s\S]*?)<\/span>/i);
+            var orig = om ? clean(om[1].replace(/<[^>]+>/g, ' ')) : '';
+
+            // Рік
+            var ym = inner.match(/<span[^>]*uas-card__year[^>]*>(\d{4})<\/span>/i);
+            var year = ym ? ym[1] : '';
+
+            if (!title && !orig) continue;
+            results.push({ id: id, title: title || orig, orig: orig, url: url, year: year });
         }
-        return Object.values(out);
+        return results;
     }
 
     // Playerjs playlist JSON зі сторінки фільму
@@ -135,10 +153,13 @@
             .filter(Boolean).map(norm);
 
         function score(r) {
-            var s = 0, n = norm(r.title);
-            titles.forEach(function (t) {
-                if (n === t) s += 10;
-                else if (n.indexOf(t) !== -1 || t.indexOf(n) !== -1) s += 4;
+            var s = 0;
+            var names = [r.title, r.orig].filter(Boolean).map(norm);
+            names.forEach(function(n) {
+                titles.forEach(function (t) {
+                    if (n === t) s += 10;
+                    else if (n.indexOf(t) !== -1 || t.indexOf(n) !== -1) s += 4;
+                });
             });
             if (year && r.year && parseInt(r.year) === year) s += 3;
             return s;
